@@ -3,39 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Messenger Multi-Lang</title>
+    <title>MeowGram Multi-Lang</title>
+    <!-- Подключаем библиотеку для QR-кода -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --panel-bg: #1e293b;
-            --chat-bg: #0b1329;
-            --text-color: #f8fafc;
-            --text-sub: #94a3b8;
-            --accent: #38bdf8;
-            --msg-out: #0284c7;
-            --msg-in: #334155;
+            --bg-color: #1a1625;
+            --panel-bg: #2d2438;
+            --chat-bg: #130f1c;
+            --text-color: #f3e8ff;
+            --text-sub: #a78bfa;
+            --accent: #c084fc;
+            --msg-out: #7e22ce;
+            --msg-in: #3b0764;
             --check-read: #38bdf8;
         }
 
-        [data-theme="light"] {
-            --bg-color: #f1f5f9;
-            --panel-bg: #ffffff;
-            --chat-bg: #e2e8f0;
-            --text-color: #0f172a;
-            --text-sub: #64748b;
-            --accent: #0284c7;
-            --msg-out: #38bdf8;
+        [data-theme="cat-light"] {
+            --bg-color: #fdf4ff;
+            --panel-bg: #fae8ff;
+            --chat-bg: #f5d0fe;
+            --text-color: #581c87;
+            --text-sub: #86198f;
+            --accent: #d946ef;
+            --msg-out: #e879f9;
             --msg-in: #ffffff;
             --check-read: #0284c7;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: var(--bg-color); color: var(--text-color); height: 100vh; display: flex; justify-content: center; align-items: center; }
 
         .app-container {
-            width: 100%; max-width: 500px; height: 100vh; max-height: 800px;
+            width: 100%; max-width: 480px; height: 100vh; max-height: 850px;
             background: var(--panel-bg); display: flex; flex-direction: column;
-            border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 2px solid var(--accent); position: relative;
         }
 
         /* Шапка */
@@ -43,29 +46,31 @@
             padding: 12px 16px; background: var(--panel-bg); display: flex;
             align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1);
         }
+        .user-meta { display: flex; align-items: center; gap: 10px; }
+        .cat-avatar { font-size: 1.8rem; background: var(--bg-color); padding: 4px 8px; border-radius: 50%; border: 1px solid var(--accent); }
         .user-info { display: flex; flex-direction: column; }
         .user-name { font-weight: bold; font-size: 1.05rem; }
-        .user-status { font-size: 0.8rem; color: var(--text-sub); transition: color 0.3s; }
+        .user-status { font-size: 0.8rem; color: var(--text-sub); }
         .user-status.online { color: #4ade80; }
 
-        .controls { display: flex; gap: 8px; align-items: center; }
+        .controls { display: flex; gap: 6px; align-items: center; }
         select, button {
-            background: var(--bg-color); color: var(--text-color); border: 1px solid var(--text-sub);
-            padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+            background: var(--bg-color); color: var(--text-color); border: 1px solid var(--accent);
+            padding: 6px 8px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;
         }
 
-        /* Область чата */
+        /* Чат */
         .chat-box {
             flex: 1; background: var(--chat-bg); padding: 16px; overflow-y: auto;
-            display: flex; flex-direction: column; gap: 10px;
+            display: flex; flex-direction: column; gap: 12px;
         }
 
         .message {
-            max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 0.95rem;
+            max-width: 78%; padding: 10px 14px; border-radius: 16px; font-size: 0.95rem;
             position: relative; word-wrap: break-word; display: flex; flex-direction: column;
         }
-        .message.out { align-self: flex-end; background: var(--msg-out); color: #fff; border-bottom-right-radius: 2px; }
-        .message.in { align-self: flex-start; background: var(--msg-in); color: var(--text-color); border-bottom-left-radius: 2px; }
+        .message.out { align-self: flex-end; background: var(--msg-out); color: #fff; border-bottom-right-radius: 4px; }
+        .message.in { align-self: flex-start; background: var(--msg-in); color: var(--text-color); border-bottom-left-radius: 4px; }
 
         .msg-meta {
             display: flex; align-items: center; justify-content: flex-end; gap: 4px;
@@ -75,45 +80,56 @@
         .ticks { font-weight: bold; font-size: 0.85rem; }
         .ticks.read { color: var(--check-read); }
 
-        /* Вложения */
-        .msg-img { max-width: 100%; border-radius: 8px; margin-top: 4px; }
+        .msg-img { max-width: 100%; border-radius: 10px; margin-top: 4px; }
         audio { max-width: 200px; height: 32px; margin-top: 4px; }
 
-        /* Панель ввода */
+        /* Ввод */
         .input-panel {
-            padding: 10px; background: var(--panel-bg); display: flex; gap: 8px; align-items: center;
+            padding: 12px; background: var(--panel-bg); display: flex; gap: 8px; align-items: center;
             border-top: 1px solid rgba(255,255,255,0.1);
         }
         .input-panel input[type="text"] {
-            flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--text-sub);
+            flex: 1; padding: 10px 14px; border-radius: 20px; border: 1px solid var(--accent);
             background: var(--bg-color); color: var(--text-color); outline: none;
         }
 
-        /* RTL Стили для Арабского */
-        [dir="rtl"] .message.out { align-self: flex-start; border-bottom-right-radius: 12px; border-bottom-left-radius: 2px; }
-        [dir="rtl"] .message.in { align-self: flex-end; border-bottom-left-radius: 12px; border-bottom-right-radius: 2px; }
+        /* Модалка QR-кода */
+        .qr-modal {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: none; flex-direction: column;
+            justify-content: center; align-items: center; gap: 16px; z-index: 100;
+        }
+        .qr-card { background: white; padding: 20px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; }
+
+        /* RTL (Арабский) */
+        [dir="rtl"] .message.out { align-self: flex-start; border-bottom-right-radius: 16px; border-bottom-left-radius: 4px; }
+        [dir="rtl"] .message.in { align-self: flex-end; border-bottom-left-radius: 16px; border-bottom-right-radius: 4px; }
         [dir="rtl"] .msg-meta { justify-content: flex-start; }
     </style>
 </head>
 <body>
 
 <div class="app-container" id="app">
-    <!-- Шапка -->
+    <!-- Шапка с Котиком -->
     <div class="header">
-        <div class="user-info">
-            <span class="user-name" id="chat-title">Alex</span>
-            <span class="user-status" id="user-status">...</span>
+        <div class="user-meta">
+            <div class="cat-avatar">🐱</div>
+            <div class="user-info">
+                <span class="user-name" id="chat-title">Кот-Собеседник</span>
+                <span class="user-status online" id="user-status">В сети</span>
+            </div>
         </div>
         <div class="controls">
-            <!-- Выбор из 5 языков -->
+            <!-- Переключатель 5 языков -->
             <select id="lang-select" onchange="changeLanguage(this.value)">
-                <option value="ru">RU</option>
-                <option value="tt">TT</option>
-                <option value="tr">TR</option>
-                <option value="en">EN</option>
-                <option value="ar">AR</option>
+                <option value="ru">RU 🐾</option>
+                <option value="tt">TT 🐾</option>
+                <option value="tr">TR 🐾</option>
+                <option value="en">EN 🐾</option>
+                <option value="ar">AR 🐾</option>
             </select>
-            <button onclick="toggleTheme()">🌓</button>
+            <button onclick="showQRCode()" title="QR Код">📱</button>
+            <button onclick="toggleTheme()" title="Тема">🐾</button>
             <button onclick="toggleOnline()" id="btn-toggle-online">🌐</button>
         </div>
     </div>
@@ -121,63 +137,62 @@
     <!-- Чат -->
     <div class="chat-box" id="chat-box"></div>
 
-    <!-- Панель ввода -->
+    <!-- Ввод -->
     <div class="input-panel">
-        <label>
+        <label style="cursor:pointer">
             📷 <input type="file" id="img-input" accept="image/*" style="display:none" onchange="sendImage(this)">
         </label>
         <button id="btn-voice" onclick="toggleVoiceRecord()">🎙️</button>
-        <input type="text" id="msg-input" placeholder="..." onkeydown="if(event.key==='Enter') sendTextMessage()">
-        <button id="btn-send" onclick="sendTextMessage()">➔</button>
+        <input type="text" id="msg-input" placeholder="Мяу-сообщение..." onkeydown="if(event.key==='Enter') sendTextMessage()">
+        <button id="btn-send" onclick="sendTextMessage()">🐾</button>
+    </div>
+
+    <!-- Модальное окно QR Кода -->
+    <div class="qr-modal" id="qr-modal" onclick="hideQRCode()">
+        <div class="qr-card" onclick="event.stopPropagation()">
+            <div id="qrcode"></div>
+            <p style="color: black; margin-top: 10px; font-weight: bold;">Сканируй для подключения 🐾</p>
+        </div>
+        <button onclick="hideQRCode()" style="background: var(--accent); color: white; border: none; padding: 8px 16px;">Закрыть</button>
     </div>
 </div>
 
 <script>
-    // 1. Словарь на 5 языков
+    // Переводы на 5 языков
     const i18n = {
         ru: {
-            title: "Собеседник",
-            online: "В сети",
+            title: "Кот-Собеседник 🐱",
+            online: "В сети 🐾",
             offline: "Был(а) в сети недавно",
-            placeholder: "Сообщение...",
-            send: "Отправить",
-            voiceRecording: "Запись...",
+            placeholder: "Мяу-сообщение...",
             dir: "ltr"
         },
         tt: {
-            title: "Сөйләшүче",
-            online: "Онлайнда",
+            title: "Песи-Сөйләшүче 🐱",
+            online: "Онлайнда 🐾",
             offline: "Яңаларда онлайнда иде",
-            placeholder: "Хәбәр...",
-            send: "Ибәрү",
-            voiceRecording: "Яздыру...",
+            placeholder: "Мяу-хәбәр...",
             dir: "ltr"
         },
         tr: {
-            title: "Sohbetçi",
-            online: "Çevrimiçi",
+            title: "Kedi Dostu 🐱",
+            online: "Çevrimiçi 🐾",
             offline: "Son görülme yakınlarda",
-            placeholder: "Mesaj...",
-            send: "Gönder",
-            voiceRecording: "Kaydediliyor...",
+            placeholder: "Miyav mesajı...",
             dir: "ltr"
         },
         en: {
-            title: "Peer",
-            online: "Online",
+            title: "Cat Peer 🐱",
+            online: "Online 🐾",
             offline: "Last seen recently",
-            placeholder: "Message...",
-            send: "Send",
-            voiceRecording: "Recording...",
+            placeholder: "Meow message...",
             dir: "ltr"
         },
         ar: {
-            title: "المستخدم",
-            online: "متصل",
+            title: "القط المحادث 🐱",
+            online: "متصل 🐾",
             offline: "آخر ظهور كان قريبًا",
-            placeholder: "اكتب رسالة...",
-            send: "إرسال",
-            voiceRecording: "جاري التسجيل...",
+            placeholder: "رسالة مياو...",
             dir: "rtl"
         }
     };
@@ -199,13 +214,11 @@
         updateStatusUI();
     }
 
-    // Переключение онлайн/оффлайн
+    // Переключение сети
     function toggleOnline() {
         isOnline = !isOnline;
         updateStatusUI();
-        if (isOnline) {
-            flushOfflineQueue();
-        }
+        if (isOnline) flushOfflineQueue();
     }
 
     function updateStatusUI() {
@@ -220,14 +233,14 @@
         }
     }
 
-    // Переключение темы
+    // Переключение темы (Кошачья темная / светлая)
     function toggleTheme() {
         const app = document.getElementById('app');
-        const isDark = app.getAttribute('data-theme') !== 'light';
-        app.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        const isDark = app.getAttribute('data-theme') !== 'cat-light';
+        app.setAttribute('data-theme', isDark ? 'cat-light' : 'dark');
     }
 
-    // Отрисовка сообщения
+    // Добавление сообщения в чат
     function appendMessage(content, type = 'text', isOut = true, status = 'sent') {
         const chatBox = document.getElementById('chat-box');
         const msgDiv = document.createElement('div');
@@ -240,7 +253,6 @@
 
         const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        // Галочки: sent (✓), delivered (✓✓ grey), read (✓✓ blue)
         let ticksHTML = '';
         if (isOut) {
             let tickSymbol = '✓';
@@ -261,7 +273,7 @@
         return msgDiv;
     }
 
-    // Отправка текстового сообщения
+    // Отправка текста
     function sendTextMessage() {
         const input = document.getElementById('msg-input');
         const text = input.value.trim();
@@ -270,17 +282,15 @@
         input.value = '';
 
         if (!isOnline) {
-            // Если оффлайн — кладем в очередь
             const msgNode = appendMessage(text, 'text', true, 'sent');
-            offlineQueue.push({ node: msgNode, type: 'text' });
+            offlineQueue.push(msgNode);
         } else {
-            // Если онлайн — сразу имитируем доставку и прочтение
             const msgNode = appendMessage(text, 'text', true, 'sent');
             simulateDeliveryAndRead(msgNode);
         }
     }
 
-    // Симуляция смены статуса (доставлено -> прочитано)
+    // Имитация галочек доставки (✓ -> ✓✓ -> ✓✓ синие)
     function simulateDeliveryAndRead(msgNode) {
         setTimeout(() => {
             const ticks = msgNode.querySelector('.ticks');
@@ -293,31 +303,30 @@
                 ticks.innerText = '✓✓';
                 ticks.classList.add('read');
             }
-        }, 2500);
+        }, 2200);
     }
 
-    // Отправка накопившейся очереди при выходе в онлайн
     function flushOfflineQueue() {
         while (offlineQueue.length > 0) {
-            const item = offlineQueue.shift();
-            simulateDeliveryAndRead(item.node);
+            const msgNode = offlineQueue.shift();
+            simulateDeliveryAndRead(msgNode);
         }
     }
 
-    // Отправка картинки
+    // Картинки
     function sendImage(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                const msgNode = appendMessage(e.target.result, 'image', true, isOnline ? 'sent' : 'sent');
+                const msgNode = appendMessage(e.target.result, 'image', true, 'sent');
                 if (isOnline) simulateDeliveryAndRead(msgNode);
-                else offlineQueue.push({ node: msgNode });
+                else offlineQueue.push(msgNode);
             }
             reader.readAsDataURL(input.files[0]);
         }
     }
 
-    // Запись голоса
+    // Голосовые
     async function toggleVoiceRecord() {
         const btn = document.getElementById('btn-voice');
         if (!isRecording) {
@@ -329,15 +338,15 @@
                 mediaRecorder.onstop = () => {
                     const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
                     const audioUrl = URL.createObjectURL(audioBlob);
-                    const msgNode = appendMessage(audioUrl, 'audio', true, isOnline ? 'sent' : 'sent');
+                    const msgNode = appendMessage(audioUrl, 'audio', true, 'sent');
                     if (isOnline) simulateDeliveryAndRead(msgNode);
-                    else offlineQueue.push({ node: msgNode });
+                    else offlineQueue.push(msgNode);
                 };
                 mediaRecorder.start();
                 isRecording = true;
                 btn.style.background = '#ef4444';
             } catch(e) {
-                alert("Ошибка доступа к микрофону");
+                alert("Ошибка микрофона!");
             }
         } else {
             mediaRecorder.stop();
@@ -346,7 +355,24 @@
         }
     }
 
-    // Инициализация при старте
+    // Работа с QR Кодом
+    let qrGenerated = false;
+    function showQRCode() {
+        document.getElementById('qr-modal').style.display = 'flex';
+        if (!qrGenerated) {
+            new QRCode(document.getElementById("qrcode"), {
+                text: window.location.href,
+                width: 160,
+                height: 160
+            });
+            qrGenerated = true;
+        }
+    }
+    function hideQRCode() {
+        document.getElementById('qr-modal').style.display = 'none';
+    }
+
+    // Стартовая инициализация
     changeLanguage('ru');
 </script>
 </body>
