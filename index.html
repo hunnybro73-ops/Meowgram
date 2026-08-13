@@ -9,11 +9,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#ff9f43">
   
-  <!-- Наша иконка -->
   <link rel="icon" type="image/jpeg" href="https://i.postimg.cc/wxbNQ5zN/icon.jpg">
   <link rel="apple-touch-icon" href="https://i.postimg.cc/wxbNQ5zN/icon.jpg">
   
-  <!-- Библиотеки -->
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -32,6 +30,18 @@
       --chat-pattern: radial-gradient(#d1c7bd 15%, transparent 16%), radial-gradient(#d1c7bd 15%, transparent 16%);
     }
 
+    body.theme-purple {
+      --accent-color: #8e44ad;
+      --chat-bg-color: #2c1638;
+      --chat-pattern: radial-gradient(#4a235a 15%, transparent 16%), radial-gradient(#4a235a 15%, transparent 16%);
+    }
+
+    body.theme-mint {
+      --accent-color: #00b894;
+      --chat-bg-color: #e8f8f5;
+      --chat-pattern: radial-gradient(#a3e4d7 15%, transparent 16%), radial-gradient(#a3e4d7 15%, transparent 16%);
+    }
+
     body.dark-theme {
       --bg-color: #18191a;
       --panel-bg: #242526;
@@ -48,8 +58,15 @@
     body { display: flex; flex-direction: column; height: 100vh; }
     
     header { padding: 12px; background: var(--panel-bg); border-bottom: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); z-index: 10; }
-    .app-title { font-size: 20px; font-weight: bold; color: var(--accent-color); margin-bottom: 6px; }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; }
+    .app-title { font-size: 20px; font-weight: bold; color: var(--accent-color); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+    
+    /* Индикатор печати с лапками */
+    #typing-indicator { font-size: 12px; color: var(--accent-color); height: 18px; opacity: 0; transition: opacity 0.3s; display: flex; align-items: center; gap: 4px; font-weight: bold; }
+    #typing-indicator.active { opacity: 1; }
+    .paw-print { animation: bouncePaws 0.8px infinite alternate; display: inline-block; }
+    @keyframes bouncePaws { 0% { transform: translateY(0); } 100% { transform: translateY(-3px); } }
+
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
     .controls-right { display: flex; gap: 6px; align-items: center; }
     .id-box { font-size: 14px; display: flex; align-items: center; gap: 6px; }
     .status-dot { width: 10px; height: 10px; border-radius: 50%; background-color: #ff3b30; display: inline-block; }
@@ -77,6 +94,10 @@
     .my { background-color: var(--accent-color); color: white; border-bottom-right-radius: 4px; }
     .peer { background-color: var(--peer-msg-bg); color: var(--peer-msg-text); border-bottom-left-radius: 4px; }
 
+    /* Стили для цитирования */
+    .quoted-box { background: rgba(0,0,0,0.1); border-left: 3px solid var(--accent-color); padding: 4px 8px; border-radius: 4px; font-size: 13px; margin-bottom: 6px; opacity: 0.9; }
+    body.dark-theme .quoted-box { background: rgba(255,255,255,0.1); }
+
     .msg-meta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 4px; opacity: 0.9; }
     .msg-status { font-weight: bold; font-size: 15px; line-height: 1; }
     .msg-status.read { color: #34c759; }
@@ -85,7 +106,13 @@
     .action-btn { background: rgba(0,0,0,0.15); border: none; border-radius: 8px; color: inherit; padding: 4px 8px; font-size: 15px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; }
     .action-btn:active { transform: scale(0.9); }
     
-    footer { padding: 10px; background: var(--panel-bg); display: flex; gap: 6px; align-items: center; border-top: 1px solid var(--border-color); z-index: 10; }
+    /* Панель ответа на сообщение */
+    #reply-preview { display: none; padding: 6px 12px; background: var(--panel-bg); border-top: 1px solid var(--border-color); align-items: center; justify-content: space-between; font-size: 13px; }
+    #reply-preview-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--subtext-color); border-left: 3px solid var(--accent-color); padding-left: 8px; margin-right: 8px; }
+
+    footer { padding: 10px; background: var(--panel-bg); display: flex; flex-direction: column; border-top: 1px solid var(--border-color); z-index: 10; gap: 6px; }
+    .footer-inputs { display: flex; gap: 6px; align-items: center; width: 100%; }
+
     input[type="text"], select { padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; background-color: var(--bg-color); color: var(--text-color); }
     #message-input { flex: 1; }
     
@@ -112,7 +139,13 @@
 <body>
 
   <header>
-    <div class="app-title">Meow 🐱</div>
+    <div class="app-title">
+      <span>Meow 🐱</span>
+      <div id="typing-indicator">
+        <span>Мяу... печатает</span>
+        <span class="paw-print">🐾</span>
+      </div>
+    </div>
     <div class="top-bar">
       <div class="id-box">
         <span id="status-dot" class="status-dot"></span>
@@ -120,11 +153,10 @@
       </div>
       <div class="controls-right">
         <button class="btn-icon" onclick="toggleSelectMode()" title="Выбрать несколько">☑️</button>
-        <select id="lang-select" onchange="changeLanguage(this.value)">
-          <option value="en">English</option>
-          <option value="ru">Русский</option>
-          <option value="tr">Türkçe</option>
-          <option value="ar">العربية</option>
+        <select id="theme-select" onchange="changeThemePalette(this.value)">
+          <option value="orange">🐱 Orange</option>
+          <option value="purple">💜 Purple</option>
+          <option value="mint">🌿 Mint</option>
         </select>
         <button class="btn-icon" onclick="showQR()">📱</button>
         <button class="btn-icon" onclick="toggleTheme()">🌙</button>
@@ -147,12 +179,19 @@
 
   <div id="messages"></div>
 
+  <div id="reply-preview">
+    <div id="reply-preview-text">Replying to...</div>
+    <button onclick="cancelReply()" style="background:none; border:none; color:var(--text-color); font-weight:bold; cursor:pointer; font-size:16px;">✕</button>
+  </div>
+
   <footer>
     <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="sendFile(this)">
-    <label for="file-input" class="btn-icon">🖼️</label>
-    <button id="mic-btn" class="btn-icon" onclick="toggleRecord()">🎙️</button>
-    <input type="text" id="message-input" placeholder="Meow..." onkeypress="handleKeyPress(event)">
-    <button onclick="sendMessage()">➤</button>
+    <div class="footer-inputs">
+      <label for="file-input" class="btn-icon">🖼️</label>
+      <button id="mic-btn" class="btn-icon" onclick="toggleRecord()">🎙️</button>
+      <input type="text" id="message-input" placeholder="Meow..." oninput="sendTypingStatus()" onkeypress="handleKeyPress(event)">
+      <button onclick="sendMessage()">➤</button>
+    </div>
   </footer>
 
   <div id="delete-modal" class="modal">
@@ -168,17 +207,17 @@
 
   <div id="qr-modal" class="modal" onclick="hideQR()">
     <div class="modal-content" onclick="event.stopPropagation()">
-      <h3 id="qr-title">Your QR Code</h3>
+      <h3>Your QR Code</h3>
       <div id="qrcode"></div>
-      <button onclick="hideQR()" id="qr-close-btn">Close</button>
+      <button onclick="hideQR()">Close</button>
     </div>
   </div>
 
   <div id="scanner-modal" class="modal">
     <div class="modal-content" onclick="event.stopPropagation()">
-      <h3 id="scanner-title">Scanner</h3>
+      <h3>Scanner</h3>
       <div id="reader"></div>
-      <button onclick="stopScanner()" id="scanner-cancel-btn">Cancel</button>
+      <button onclick="stopScanner()">Cancel</button>
     </div>
   </div>
 
@@ -201,35 +240,13 @@
         <line x1="120" y1="92" x2="135" y2="90" stroke="#2d3436" stroke-width="1.5" />
         <line x1="120" y1="95" x2="135" y2="97" stroke="#2d3436" stroke-width="1.5" />
       </svg>
-      <h3 id="connect-status" style="margin-top: 10px; color: var(--text-color);">Connecting... 🐾</h3>
-      <p id="connect-subtext" style="color: var(--subtext-color); font-size: 14px; margin-bottom: 15px;">Waiting for friend to accept</p>
-      <button onclick="cancelConnection()" id="cancel-btn" style="background: #ff3b30;">Cancel</button>
+      <h3 style="margin-top: 10px; color: var(--text-color);">Connecting... 🐾</h3>
+      <p style="color: var(--subtext-color); font-size: 14px; margin-bottom: 15px;">Waiting for friend to accept</p>
+      <button onclick="cancelConnection()" style="background: #ff3b30;">Cancel</button>
     </div>
   </div>
 
   <script>
-    const translations = {
-      en: { dir: "ltr", connect: "Connect", placeholder: "Meow...", friendId: "Friend's ID", status: "Connecting... 🐾", subtext: "Waiting for friend to accept", cancel: "Cancel", qrTitle: "Your QR Code", qrClose: "Close", scanTitle: "Scanner", scanCancel: "Cancel" },
-      ru: { dir: "ltr", connect: "Подключить", placeholder: "Мяу...", friendId: "ID друга", status: "Подключение... 🐾", subtext: "Ожидаем ответа друга", cancel: "Отмена", qrTitle: "Ваш QR-код", qrClose: "Закрыть", scanTitle: "Сканер", scanCancel: "Отмена" },
-      tr: { dir: "ltr", connect: "Bağlan", placeholder: "Miyav...", friendId: "Arkadaşın ID'si", status: "Bağlanıyor... 🐾", subtext: "Arkadaşın kabul etmesi bekleniyor", cancel: "İptal", qrTitle: "QR Kodunuz", qrClose: "Kapat", scanTitle: "Tarayıcı", scanCancel: "İptal" },
-      ar: { dir: "rtl", connect: "اتصال", placeholder: "مواء...", friendId: "معرف الصديق", status: "...جاري الاتصال 🐾", subtext: "في انتظار قبول الصديق", cancel: "إلغاء", qrTitle: "رمز QR الخاص بك", qrClose: "إغلاق", scanTitle: "الماسح الضوئي", scanCancel: "إلغاء" }
-    };
-
-    function changeLanguage(lang) {
-      const t = translations[lang];
-      document.body.dir = t.dir;
-      document.getElementById('connect-btn').innerText = t.connect;
-      document.getElementById('message-input').placeholder = t.placeholder;
-      document.getElementById('peer-id-input').placeholder = t.friendId;
-      document.getElementById('connect-status').innerText = t.status;
-      document.getElementById('connect-subtext').innerText = t.subtext;
-      document.getElementById('cancel-btn').innerText = t.cancel;
-      document.getElementById('qr-title').innerText = t.qrTitle;
-      document.getElementById('qr-close-btn').innerText = t.qrClose;
-      document.getElementById('scanner-title').innerText = t.scanTitle;
-      document.getElementById('scanner-cancel-btn').innerText = t.scanCancel;
-    }
-
     const peerConfig = {
       config: {
         iceServers: [
@@ -256,6 +273,8 @@
 
     let targetDeleteWrapper = null;
     let isMultipleDeleteMode = false;
+    let replyingToData = null;
+    let typingTimer = null;
 
     const meowSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
     meowSound.volume = 1.0;
@@ -276,14 +295,28 @@
       meowSound.play().catch(e => console.log("Sound play error:", e));
     }
 
-    function toggleTheme() { document.body.classList.toggle('dark-theme'); }
+    function toggleTheme() { 
+      document.body.classList.toggle('dark-theme'); 
+      localStorage.setItem('meow_dark', document.body.classList.contains('dark-theme'));
+    }
+
+    function changeThemePalette(theme) {
+      document.body.classList.remove('theme-purple', 'theme-mint');
+      if (theme !== 'orange') document.body.classList.add(`theme-${theme}`);
+      localStorage.setItem('meow_palette', theme);
+    }
+
+    // Загрузка сохраненных тем
+    if(localStorage.getItem('meow_dark') === 'true') document.body.classList.add('dark-theme');
+    const savedPalette = localStorage.getItem('meow_palette');
+    if(savedPalette) {
+      document.getElementById('theme-select').value = savedPalette;
+      changeThemePalette(savedPalette);
+    }
 
     peer.on('open', (id) => { document.getElementById('my-id').innerText = id; });
 
-    peer.on('disconnected', () => {
-      console.log('Связь потеряна. Переподключаемся...');
-      peer.reconnect();
-    });
+    peer.on('disconnected', () => { peer.reconnect(); });
 
     function showQR() {
       document.getElementById('qr-modal').style.display = 'flex';
@@ -350,22 +383,42 @@
           return;
         }
 
+        if (d.type === 'typing') {
+          const indicator = document.getElementById('typing-indicator');
+          indicator.classList.add('active');
+          clearTimeout(window.typingTimeout);
+          window.typingTimeout = setTimeout(() => {
+            indicator.classList.remove('active');
+          }, 2000);
+          return;
+        }
+
         if (d.type === 'delete_msg') {
           const wrapper = document.querySelector(`.msg-wrapper[data-id="${d.msgId}"]`);
           if (wrapper) wrapper.remove();
+          removeMessageFromStorage(d.msgId);
           return;
         }
 
         playMeow();
 
-        if (d.type === 'image') addImageMessage(d.file, 'peer', d.msgId);
-        else if (d.type === 'audio') addAudioMessage(d.file, 'peer', d.msgId);
-        else addMessage(d.text || d, 'peer', d.msgId);
+        if (d.type === 'image') saveAndAddMessage({ type: 'image', file: d.file, type_msg: 'peer', msgId: d.msgId, reply: d.reply });
+        else if (d.type === 'audio') saveAndAddMessage({ type: 'audio', file: d.file, type_msg: 'peer', msgId: d.msgId, reply: d.reply });
+        else saveAndAddMessage({ type: 'text', text: d.text || d, type_msg: 'peer', msgId: d.msgId, reply: d.reply });
 
         if (d.msgId) {
           conn.send({ type: 'ack', msgId: d.msgId });
         }
       });
+    }
+
+    function sendTypingStatus() {
+      if (conn && conn.open) {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(() => {
+          conn.send({ type: 'typing' });
+        }, 300);
+      }
     }
 
     function sendMessage() {
@@ -374,17 +427,18 @@
       if (!text) return;
 
       const msgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
-      const payload = { type: 'text', text: text, msgId: msgId };
+      const payload = { type: 'text', text: text, msgId: msgId, reply: replyingToData };
 
       if (conn && conn.open) {
         conn.send(payload);
-        addMessage(text, 'my', msgId, '✓');
+        saveAndAddMessage({ type: 'text', text, type_msg: 'my', msgId, statusSymbol: '✓', reply: replyingToData });
       } else {
         messageQueue.push({ msgId, payload });
-        addMessage(text, 'my', msgId, '⏳');
+        saveAndAddMessage({ type: 'text', text, type_msg: 'my', msgId, statusSymbol: '⏳', reply: replyingToData });
       }
       playMeow();
       input.value = '';
+      cancelReply();
     }
 
     function sendFile(input) {
@@ -394,8 +448,9 @@
       const msgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
       const r = new FileReader();
       r.onload = (e) => { 
-        conn.send({ type: 'image', file: e.target.result, msgId: msgId }); 
-        addImageMessage(e.target.result, 'my', msgId, '✓'); 
+        conn.send({ type: 'image', file: e.target.result, msgId: msgId, reply: replyingToData }); 
+        saveAndAddMessage({ type: 'image', file: e.target.result, type_msg: 'my', msgId, statusSymbol: '✓', reply: replyingToData });
+        cancelReply();
       };
       r.readAsDataURL(f);
     }
@@ -413,8 +468,9 @@
             const msgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
             const r = new FileReader();
             r.onload = (e) => { 
-              conn.send({ type: 'audio', file: e.target.result, msgId: msgId }); 
-              addAudioMessage(e.target.result, 'my', msgId, '✓'); 
+              conn.send({ type: 'audio', file: e.target.result, msgId: msgId, reply: replyingToData }); 
+              saveAndAddMessage({ type: 'audio', file: e.target.result, type_msg: 'my', msgId, statusSymbol: '✓', reply: replyingToData });
+              cancelReply();
             };
             r.readAsDataURL(b);
           };
@@ -427,9 +483,51 @@
 
     function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
 
-    function createMsgWrapper(type, msgId, statusSymbol = '') {
+    // Логика сохранения истории в LocalStorage
+    function saveAndAddMessage(msgData) {
+      renderMessage(msgData);
+      let history = JSON.parse(localStorage.getItem('meow_history') || '[]');
+      history.push(msgData);
+      if(history.length > 100) history.shift(); // ограничение в 100 сообщений
+      localStorage.setItem('meow_history', JSON.stringify(history));
+    }
+
+    function removeMessageFromStorage(msgId) {
+      let history = JSON.parse(localStorage.getItem('meow_history') || '[]');
+      history = history.filter(m => m.msgId !== msgId);
+      localStorage.setItem('meow_history', JSON.stringify(history));
+    }
+
+    // Загрузка истории при старте
+    window.addEventListener('DOMContentLoaded', () => {
+      let history = JSON.parse(localStorage.getItem('meow_history') || '[]');
+      history.forEach(m => renderMessage(m));
+    });
+
+    function setReply(btn) {
+      const msgDiv = btn.closest('.msg');
+      const wrapper = btn.closest('.msg-wrapper');
+      const msgId = wrapper.getAttribute('data-id');
+      const textEl = msgDiv.querySelector('span') || msgDiv.querySelector('img') || msgDiv.querySelector('audio');
+      
+      let snippet = textEl.tagName === 'IMG' ? '[Фото]' : (textEl.tagName === 'AUDIO' ? '[Голосовое]' : textEl.innerText);
+      if(snippet.length > 30) snippet = snippet.substring(0, 30) + '...';
+
+      replyingToData = { msgId, snippet };
+      document.getElementById('reply-preview-text').innerText = snippet;
+      document.getElementById('reply-preview').style.display = 'flex';
+      document.getElementById('message-input').focus();
+    }
+
+    function cancelReply() {
+      replyingToData = null;
+      document.getElementById('reply-preview').style.display = 'none';
+    }
+
+    function renderMessage(data) {
+      const { type, text, file, type_msg, msgId, statusSymbol = '', reply } = data;
       const wrapper = document.createElement('div');
-      wrapper.className = `msg-wrapper ${type}-wrapper`;
+      wrapper.className = `msg-wrapper ${type_msg}-wrapper`;
       if (msgId) wrapper.setAttribute('data-id', msgId);
 
       const checkbox = document.createElement('input');
@@ -438,20 +536,53 @@
       checkbox.onchange = updateSelectedCount;
 
       const msgDiv = document.createElement('div');
-      msgDiv.className = `msg ${type}`;
-      
-      wrapper.appendChild(checkbox);
-      wrapper.appendChild(msgDiv);
-      return { wrapper, msgDiv };
-    }
+      msgDiv.className = `msg ${type_msg}`;
 
-    function appendMeta(msgDiv, type, statusSymbol) {
-      if (type === 'my') {
+      // Если есть цитата
+      if (reply) {
+        const quoteDiv = document.createElement('div');
+        quoteDiv.className = 'quoted-box';
+        quoteDiv.innerText = reply.snippet;
+        msgDiv.appendChild(quoteDiv);
+      }
+
+      if (type === 'image') {
+        const img = document.createElement('img');
+        img.src = file;
+        msgDiv.appendChild(img);
+      } else if (type === 'audio') {
+        const audio = document.createElement('audio');
+        audio.src = file;
+        audio.controls = true;
+        msgDiv.appendChild(audio);
+      } else {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const textSpan = document.createElement('span');
+        textSpan.innerHTML = text.replace(urlRegex, '<a href="$1" target="_blank" style="color:inherit; text-decoration:underline;">$1</a>');
+        msgDiv.appendChild(textSpan);
+      }
+
+      if (type_msg === 'my') {
         const metaDiv = document.createElement('div');
         metaDiv.className = 'msg-meta';
         metaDiv.innerHTML = `<span class="msg-status ${statusSymbol === '✓✓' ? 'read' : ''}">${statusSymbol}</span>`;
         msgDiv.appendChild(metaDiv);
       }
+
+      const actions = document.createElement('div');
+      actions.className = 'msg-actions';
+      actions.innerHTML = `
+        <button class="action-btn" onclick="setReply(this)" title="Ответить">↩️</button>
+        ${type === 'text' ? '<button class="action-btn" onclick="copyTextMessage(this)" title="Копировать">📋</button>' : ''}
+        ${type === 'image' ? `<button class="action-btn" onclick="shareFile('${file}', 'photo.png')">↗️</button>` : ''}
+        <button class="action-btn" onclick="openDeleteModal(this)" title="Удалить">🗑️</button>
+      `;
+      msgDiv.appendChild(actions);
+
+      wrapper.appendChild(checkbox);
+      wrapper.appendChild(msgDiv);
+      document.getElementById('messages').appendChild(wrapper); 
+      document.getElementById('messages').scrollTop = 9999; 
     }
 
     function updateMessageStatus(msgId, symbol) {
@@ -469,122 +600,43 @@
       const msgDiv = btn.closest('.msg');
       const textSpan = msgDiv.querySelector('span');
       if (!textSpan) return;
-
-      const textToCopy = textSpan.innerText;
-      navigator.clipboard.writeText(textToCopy).then(() => {
+      navigator.clipboard.writeText(textSpan.innerText).then(() => {
         const originalText = btn.innerText;
         btn.innerText = '✅';
         setTimeout(() => { btn.innerText = originalText; }, 1500);
-      }).catch(err => {
-        console.error('Ошибка копирования:', err);
       });
     }
 
-    function addMessage(t, type, msgId = null, statusSymbol = '') { 
-      const { wrapper, msgDiv } = createMsgWrapper(type, msgId, statusSymbol);
-      const urlRegex = /(https?:\/\/[^\s]+)/g;
-      const textSpan = document.createElement('span');
-      textSpan.innerHTML = t.replace(urlRegex, '<a href="$1" target="_blank" style="color:inherit; text-decoration:underline;">$1</a>');
-      msgDiv.appendChild(textSpan);
-      
-      appendMeta(msgDiv, type, statusSymbol);
-
-      const actions = document.createElement('div');
-      actions.className = 'msg-actions';
-      actions.innerHTML = `
-        <button class="action-btn" onclick="copyTextMessage(this)" title="Копировать">📋</button>
-        <button class="action-btn" onclick="openDeleteModal(this)" title="Удалить">🗑️</button>
-      `;
-      
-      msgDiv.appendChild(actions);
-      document.getElementById('messages').appendChild(wrapper); 
-      document.getElementById('messages').scrollTop = 9999; 
-    }
-
-    function addImageMessage(s, type, msgId = null, statusSymbol = '') { 
-      const { wrapper, msgDiv } = createMsgWrapper(type, msgId, statusSymbol);
-      const img = document.createElement('img');
-      img.src = s;
-      msgDiv.appendChild(img);
-      
-      appendMeta(msgDiv, type, statusSymbol);
-
-      const actions = document.createElement('div');
-      actions.className = 'msg-actions';
-      actions.innerHTML = `
-        <button class="action-btn" onclick="shareFile('${s}', 'photo.png')">↗️</button>
-        <button class="action-btn" onclick="openDeleteModal(this)">🗑️</button>
-      `;
-      msgDiv.appendChild(actions);
-      document.getElementById('messages').appendChild(wrapper); 
-      document.getElementById('messages').scrollTop = 9999; 
-    }
-
-    function addAudioMessage(s, type, msgId = null, statusSymbol = '') { 
-      const { wrapper, msgDiv } = createMsgWrapper(type, msgId, statusSymbol);
-      const audio = document.createElement('audio');
-      audio.src = s;
-      audio.controls = true;
-      msgDiv.appendChild(audio);
-
-      appendMeta(msgDiv, type, statusSymbol);
-
-      const actions = document.createElement('div');
-      actions.className = 'msg-actions';
-      actions.innerHTML = `<button class="action-btn" onclick="openDeleteModal(this)">🗑️</button>`;
-      msgDiv.appendChild(actions);
-      document.getElementById('messages').appendChild(wrapper); 
-      document.getElementById('messages').scrollTop = 9999; 
-    }
-
     async function shareFile(base64Data, fileName) {
-      if (!navigator.share) return alert("Sharing is not supported on this device.");
+      if (!navigator.share) return alert("Sharing is not supported.");
       try {
         const res = await fetch(base64Data);
         const blob = await res.blob();
         const file = new File([blob], fileName, { type: blob.type || 'image/png' });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], title: 'Meow App File' });
-        } else { alert("File sharing is not supported."); }
-      } catch (err) { console.log('Share canceled:', err); }
+        }
+      } catch (err) {}
     }
 
     function openDeleteModal(btn) {
       isMultipleDeleteMode = false;
       targetDeleteWrapper = btn.closest('.msg-wrapper');
-      
       const isMyMessage = targetDeleteWrapper.classList.contains('my-wrapper');
       const btnEveryone = document.getElementById('btn-delete-everyone');
-      
-      if (isMyMessage && conn && conn.open) {
-        btnEveryone.style.display = 'block';
-      } else {
-        btnEveryone.style.display = 'none';
-      }
-      
+      btnEveryone.style.display = (isMyMessage && conn && conn.open) ? 'block' : 'none';
       document.getElementById('delete-modal').style.display = 'flex';
     }
 
     function confirmDeleteSelected() {
       const selected = document.querySelectorAll('.msg-checkbox:checked');
       if (selected.length === 0) return;
-      
       isMultipleDeleteMode = true;
-      
       let hasMyMessages = false;
       selected.forEach(cb => {
-        if (cb.closest('.msg-wrapper').classList.contains('my-wrapper')) {
-          hasMyMessages = true;
-        }
+        if (cb.closest('.msg-wrapper').classList.contains('my-wrapper')) hasMyMessages = true;
       });
-
-      const btnEveryone = document.getElementById('btn-delete-everyone');
-      if (hasMyMessages && conn && conn.open) {
-        btnEveryone.style.display = 'block';
-      } else {
-        btnEveryone.style.display = 'none';
-      }
-
+      document.getElementById('btn-delete-everyone').style.display = (hasMyMessages && conn && conn.open) ? 'block' : 'none';
       document.getElementById('delete-modal').style.display = 'flex';
     }
 
@@ -604,6 +656,7 @@
             conn.send({ type: 'delete_msg', msgId: msgId });
           }
           wrapper.remove();
+          if(msgId) removeMessageFromStorage(msgId);
         });
         toggleSelectMode();
       } else if (targetDeleteWrapper) {
@@ -612,6 +665,7 @@
           conn.send({ type: 'delete_msg', msgId: msgId });
         }
         targetDeleteWrapper.remove();
+        if(msgId) removeMessageFromStorage(msgId);
       }
       closeDeleteModal();
     }
