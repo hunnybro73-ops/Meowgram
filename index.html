@@ -1,379 +1,729 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MeowGram Multi-Lang</title>
-    <!-- Подключаем библиотеку для QR-кода -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <style>
-        :root {
-            --bg-color: #1a1625;
-            --panel-bg: #2d2438;
-            --chat-bg: #130f1c;
-            --text-color: #f3e8ff;
-            --text-sub: #a78bfa;
-            --accent: #c084fc;
-            --msg-out: #7e22ce;
-            --msg-in: #3b0764;
-            --check-read: #38bdf8;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meowgram 🐱</title>
+  
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#ff9f43">
+  
+  <link rel="icon" type="image/jpeg" href="https://i.postimg.cc/wxbNQ5zN/icon.jpg">
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/wxbNQ5zN/icon.jpg">
+  
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
-        [data-theme="cat-light"] {
-            --bg-color: #fdf4ff;
-            --panel-bg: #fae8ff;
-            --chat-bg: #f5d0fe;
-            --text-color: #581c87;
-            --text-sub: #86198f;
-            --accent: #d946ef;
-            --msg-out: #e879f9;
-            --msg-in: #ffffff;
-            --check-read: #0284c7;
-        }
+  <style>
+    :root {
+      --bg-color: #f0f2f5;
+      --panel-bg: #ffffff;
+      --text-color: #050505;
+      --subtext-color: #65676b;
+      --border-color: #e0e0e0;
+      --peer-msg-bg: #ffffff;
+      --peer-msg-text: #050505;
+      --accent-color: #ff9f43;
+      --chat-bg-color: #e5ddd5;
+      --chat-pattern: radial-gradient(#d1c7bd 15%, transparent 16%), radial-gradient(#d1c7bd 15%, transparent 16%);
+    }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: var(--bg-color); color: var(--text-color); height: 100vh; display: flex; justify-content: center; align-items: center; }
+    body.theme-purple {
+      --accent-color: #8e44ad;
+      --chat-bg-color: #2c1638;
+      --chat-pattern: radial-gradient(#4a235a 15%, transparent 16%), radial-gradient(#4a235a 15%, transparent 16%);
+    }
 
-        .app-container {
-            width: 100%; max-width: 480px; height: 100vh; max-height: 850px;
-            background: var(--panel-bg); display: flex; flex-direction: column;
-            border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 2px solid var(--accent); position: relative;
-        }
+    body.theme-mint {
+      --accent-color: #00b894;
+      --chat-bg-color: #e8f8f5;
+      --chat-pattern: radial-gradient(#a3e4d7 15%, transparent 16%), radial-gradient(#a3e4d7 15%, transparent 16%);
+    }
 
-        /* Шапка */
-        .header {
-            padding: 12px 16px; background: var(--panel-bg); display: flex;
-            align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .user-meta { display: flex; align-items: center; gap: 10px; }
-        .cat-avatar { font-size: 1.8rem; background: var(--bg-color); padding: 4px 8px; border-radius: 50%; border: 1px solid var(--accent); }
-        .user-info { display: flex; flex-direction: column; }
-        .user-name { font-weight: bold; font-size: 1.05rem; }
-        .user-status { font-size: 0.8rem; color: var(--text-sub); }
-        .user-status.online { color: #4ade80; }
+    body.dark-theme {
+      --bg-color: #18191a;
+      --panel-bg: #242526;
+      --text-color: #e4e6eb;
+      --subtext-color: #b0b3b8;
+      --border-color: #3e4042;
+      --peer-msg-bg: #3a3b3c;
+      --peer-msg-text: #e4e6eb;
+      --chat-bg-color: #0d1418;
+      --chat-pattern: radial-gradient(#202c33 15%, transparent 16%), radial-gradient(#202c33 15%, transparent 16%);
+    }
 
-        .controls { display: flex; gap: 6px; align-items: center; }
-        select, button {
-            background: var(--bg-color); color: var(--text-color); border: 1px solid var(--accent);
-            padding: 6px 8px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;
-        }
+    html, body { height: 100%; margin: 0; padding: 0; font-family: sans-serif; background-color: var(--bg-color); color: var(--text-color); transition: 0.3s; }
+    body { display: flex; flex-direction: column; height: 100vh; }
+    
+    header { padding: 12px; background: var(--panel-bg); border-bottom: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); z-index: 10; }
+    .app-title { font-size: 20px; font-weight: bold; color: var(--accent-color); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+    
+    #typing-indicator { font-size: 12px; color: var(--accent-color); height: 18px; opacity: 0; transition: opacity 0.3s; display: flex; align-items: center; gap: 4px; font-weight: bold; }
+    #typing-indicator.active { opacity: 1; }
+    .paw-print { animation: bouncePaws 0.8px infinite alternate; display: inline-block; }
+    @keyframes bouncePaws { 0% { transform: translateY(0); } 100% { transform: translateY(-3px); } }
 
-        /* Чат */
-        .chat-box {
-            flex: 1; background: var(--chat-bg); padding: 16px; overflow-y: auto;
-            display: flex; flex-direction: column; gap: 12px;
-        }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+    .controls-right { display: flex; gap: 4px; align-items: center; }
+    .id-box { font-size: 14px; display: flex; align-items: center; gap: 6px; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background-color: #ff3b30; display: inline-block; }
+    .status-dot.online { background-color: #34c759; }
+    
+    .connect-box { margin-top: 8px; display: flex; gap: 5px; }
+    .connect-box input { flex: 1; }
 
-        .message {
-            max-width: 78%; padding: 10px 14px; border-radius: 16px; font-size: 0.95rem;
-            position: relative; word-wrap: break-word; display: flex; flex-direction: column;
-        }
-        .message.out { align-self: flex-end; background: var(--msg-out); color: #fff; border-bottom-right-radius: 4px; }
-        .message.in { align-self: flex-start; background: var(--msg-in); color: var(--text-color); border-bottom-left-radius: 4px; }
+    #delete-bar { display: none; background: #ff3b30; color: white; padding: 8px 12px; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
+    #delete-bar button { background: white; color: #ff3b30; border: none; padding: 4px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    
+    #messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; background-color: var(--chat-bg-color); background-image: var(--chat-pattern); background-size: 30px 30px; background-position: 0 0, 15px 15px; }
+    
+    .msg-wrapper { display: flex; align-items: center; gap: 8px; width: 100%; }
+    .msg-wrapper.my-wrapper { justify-content: flex-end; }
+    .msg-wrapper.peer-wrapper { justify-content: flex-start; }
+    
+    .msg-checkbox { display: none; width: 22px; height: 22px; cursor: pointer; }
+    body.select-mode .msg-checkbox { display: block !important; }
+    
+    .msg { max-width: 75%; padding: 10px 14px; border-radius: 16px; font-size: 15px; line-height: 1.4; word-wrap: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.15); position: relative; }
+    .msg img { max-width: 100%; border-radius: 10px; display: block; margin-top: 4px; }
+    .msg audio { max-width: 220px; margin-top: 4px; outline: none; }
+    
+    .my { background-color: var(--accent-color); color: white; border-bottom-right-radius: 4px; }
+    .peer { background-color: var(--peer-msg-bg); color: var(--peer-msg-text); border-bottom-left-radius: 4px; }
 
-        .msg-meta {
-            display: flex; align-items: center; justify-content: flex-end; gap: 4px;
-            font-size: 0.7rem; color: rgba(255,255,255,0.7); margin-top: 4px;
-        }
-        .message.in .msg-meta { color: var(--text-sub); }
-        .ticks { font-weight: bold; font-size: 0.85rem; }
-        .ticks.read { color: var(--check-read); }
+    .quoted-box { background: rgba(0,0,0,0.1); border-left: 3px solid var(--accent-color); padding: 4px 8px; border-radius: 4px; font-size: 13px; margin-bottom: 6px; opacity: 0.9; }
+    body.dark-theme .quoted-box { background: rgba(255,255,255,0.1); }
 
-        .msg-img { max-width: 100%; border-radius: 10px; margin-top: 4px; }
-        audio { max-width: 200px; height: 32px; margin-top: 4px; }
+    .msg-meta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 4px; opacity: 0.9; }
+    .msg-status { font-weight: bold; font-size: 15px; line-height: 1; }
+    .msg-status.read { color: #34c759; }
 
-        /* Ввод */
-        .input-panel {
-            padding: 12px; background: var(--panel-bg); display: flex; gap: 8px; align-items: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-        .input-panel input[type="text"] {
-            flex: 1; padding: 10px 14px; border-radius: 20px; border: 1px solid var(--accent);
-            background: var(--bg-color); color: var(--text-color); outline: none;
-        }
+    .msg-actions { display: flex; gap: 4px; margin-top: 8px; justify-content: flex-end; flex-wrap: wrap; }
+    .action-btn { background: rgba(0,0,0,0.15); border: none; border-radius: 8px; color: inherit; padding: 4px 8px; font-size: 14px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+    .action-btn:active { transform: scale(0.9); }
+    
+    #reply-preview { display: none; padding: 6px 12px; background: var(--panel-bg); border-top: 1px solid var(--border-color); align-items: center; justify-content: space-between; font-size: 13px; }
+    #reply-preview-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--subtext-color); border-left: 3px solid var(--accent-color); padding-left: 8px; margin-right: 8px; }
 
-        /* Модалка QR-кода */
-        .qr-modal {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: none; flex-direction: column;
-            justify-content: center; align-items: center; gap: 16px; z-index: 100;
-        }
-        .qr-card { background: white; padding: 20px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; }
+    footer { padding: 10px; background: var(--panel-bg); display: flex; flex-direction: column; border-top: 1px solid var(--border-color); z-index: 10; gap: 6px; }
+    .footer-inputs { display: flex; gap: 6px; align-items: center; width: 100%; }
 
-        /* RTL (Арабский) */
-        [dir="rtl"] .message.out { align-self: flex-start; border-bottom-right-radius: 16px; border-bottom-left-radius: 4px; }
-        [dir="rtl"] .message.in { align-self: flex-end; border-bottom-left-radius: 16px; border-bottom-right-radius: 4px; }
-        [dir="rtl"] .msg-meta { justify-content: flex-start; }
-    </style>
+    input[type="text"], select { padding: 8px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; outline: none; background-color: var(--bg-color); color: var(--text-color); }
+    #message-input { flex: 1; padding: 10px; font-size: 14px; }
+    
+    button, .btn-icon { padding: 10px 14px; background-color: var(--accent-color); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .btn-icon { background-color: var(--bg-color); color: var(--text-color); font-size: 16px; border: 1px solid var(--border-color); padding: 8px; }
+    .btn-icon.recording { background-color: #ff3b30; color: white; animation: pulse 1s infinite alternate; }
+    @keyframes pulse { from { opacity: 1; } to { opacity: 0.5; } }
+    
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: var(--panel-bg); padding: 20px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); max-width: 90%; }
+    #qrcode img { margin: 0 auto; border: 8px solid white; border-radius: 8px; }
+    #reader { width: 260px; border-radius: 12px; overflow: hidden; }
+
+    .delete-modal-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; font-size: 14px; cursor: pointer; }
+    .btn-danger { background-color: #ff3b30; color: white; }
+    .btn-secondary { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); }
+
+    #waiting-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 2000; }
+    .cat-container { background: var(--panel-bg); padding: 24px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    #cat-tail { transform-origin: 140px 140px; animation: wagTail 1s infinite ease-in-out alternate; }
+    @keyframes wagTail { 0% { transform: rotate(0deg); } 100% { transform: rotate(-20deg); } }
+  </style>
 </head>
 <body>
 
-<div class="app-container" id="app">
-    <!-- Шапка с Котиком -->
-    <div class="header">
-        <div class="user-meta">
-            <div class="cat-avatar">🐱</div>
-            <div class="user-info">
-                <span class="user-name" id="chat-title">Кот-Собеседник</span>
-                <span class="user-status online" id="user-status">В сети</span>
-            </div>
-        </div>
-        <div class="controls">
-            <!-- Переключатель 5 языков -->
-            <select id="lang-select" onchange="changeLanguage(this.value)">
-                <option value="ru">RU 🐾</option>
-                <option value="tt">TT 🐾</option>
-                <option value="tr">TR 🐾</option>
-                <option value="en">EN 🐾</option>
-                <option value="ar">AR 🐾</option>
-            </select>
-            <button onclick="showQRCode()" title="QR Код">📱</button>
-            <button onclick="toggleTheme()" title="Тема">🐾</button>
-            <button onclick="toggleOnline()" id="btn-toggle-online">🌐</button>
-        </div>
+  <header>
+    <div class="app-title">
+      <span>Meow 🐱</span>
+      <div id="typing-indicator">
+        <span>Мяу... печатает</span>
+        <span class="paw-print">🐾</span>
+      </div>
     </div>
-
-    <!-- Чат -->
-    <div class="chat-box" id="chat-box"></div>
-
-    <!-- Ввод -->
-    <div class="input-panel">
-        <label style="cursor:pointer">
-            📷 <input type="file" id="img-input" accept="image/*" style="display:none" onchange="sendImage(this)">
-        </label>
-        <button id="btn-voice" onclick="toggleVoiceRecord()">🎙️</button>
-        <input type="text" id="msg-input" placeholder="Мяу-сообщение..." onkeydown="if(event.key==='Enter') sendTextMessage()">
-        <button id="btn-send" onclick="sendTextMessage()">🐾</button>
+    <div class="top-bar">
+      <div class="id-box">
+        <span id="status-dot" class="status-dot"></span>
+        <span>ID: <b id="my-id" style="color: var(--accent-color);">Loading...</b></span>
+      </div>
+      <div class="controls-right">
+        <!-- ВЫБОР ЯЗЫКА -->
+        <select id="lang-select" title="Переводить на этот язык">
+          <option value="ru">🇷🇺 RU</option>
+          <option value="tt">Tatar</option>
+          <option value="tr">🇹🇷 TR</option>
+          <option value="en">🇬🇧 EN</option>
+          <option value="ar">🇸🇦 AR</option>
+        </select>
+        <!-- ТЕМЫ -->
+        <select id="theme-select" onchange="changeThemePalette(this.value)">
+          <option value="orange">🐱</option>
+          <option value="purple">💜</option>
+          <option value="mint">🌿</option>
+        </select>
+        <button class="btn-icon" onclick="toggleSelectMode()" title="Выбрать несколько">☑️</button>
+        <button class="btn-icon" onclick="showQR()">📱</button>
+        <!-- КНОПКА СОЛНЦЕ / ЛУНА С ID -->
+        <button class="btn-icon" id="theme-btn" onclick="toggleTheme()">☀️</button>
+      </div>
     </div>
-
-    <!-- Модальное окно QR Кода -->
-    <div class="qr-modal" id="qr-modal" onclick="hideQRCode()">
-        <div class="qr-card" onclick="event.stopPropagation()">
-            <div id="qrcode"></div>
-            <p style="color: black; margin-top: 10px; font-weight: bold;">Сканируй для подключения 🐾</p>
-        </div>
-        <button onclick="hideQRCode()" style="background: var(--accent); color: white; border: none; padding: 8px 16px;">Закрыть</button>
+    <div class="connect-box">
+      <input type="text" id="peer-id-input" placeholder="Friend's ID">
+      <button class="btn-icon" onclick="startScanner()">📷</button>
+      <button onclick="connectToPeer()" id="connect-btn">Connect</button>
     </div>
-</div>
+  </header>
 
-<script>
-    // Переводы на 5 языков
-    const i18n = {
-        ru: {
-            title: "Кот-Собеседник 🐱",
-            online: "В сети 🐾",
-            offline: "Был(а) в сети недавно",
-            placeholder: "Мяу-сообщение...",
-            dir: "ltr"
-        },
-        tt: {
-            title: "Песи-Сөйләшүче 🐱",
-            online: "Онлайнда 🐾",
-            offline: "Яңаларда онлайнда иде",
-            placeholder: "Мяу-хәбәр...",
-            dir: "ltr"
-        },
-        tr: {
-            title: "Kedi Dostu 🐱",
-            online: "Çevrimiçi 🐾",
-            offline: "Son görülme yakınlarda",
-            placeholder: "Miyav mesajı...",
-            dir: "ltr"
-        },
-        en: {
-            title: "Cat Peer 🐱",
-            online: "Online 🐾",
-            offline: "Last seen recently",
-            placeholder: "Meow message...",
-            dir: "ltr"
-        },
-        ar: {
-            title: "القط المحادث 🐱",
-            online: "متصل 🐾",
-            offline: "آخر ظهور كان قريبًا",
-            placeholder: "رسالة مياو...",
-            dir: "rtl"
-        }
+  <div id="delete-bar">
+    <span id="selected-count">Выбрано: 0</span>
+    <div>
+      <button onclick="confirmDeleteSelected()">Удалить выбранные</button>
+      <button onclick="toggleSelectMode()" style="background: transparent; color: white;">Отмена</button>
+    </div>
+  </div>
+
+  <div id="messages"></div>
+
+  <div id="reply-preview">
+    <div id="reply-preview-text">Replying to...</div>
+    <button onclick="cancelReply()" style="background:none; border:none; color:var(--text-color); font-weight:bold; cursor:pointer; font-size:16px;">✕</button>
+  </div>
+
+  <footer>
+    <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="sendFile(this)">
+    <div class="footer-inputs">
+      <label for="file-input" class="btn-icon">🖼️</label>
+      <button id="mic-btn" class="btn-icon" onclick="toggleRecord()">🎙️</button>
+      <input type="text" id="message-input" placeholder="Meow..." oninput="sendTypingStatus()" onkeypress="handleKeyPress(event)">
+      <button onclick="sendMessage()">➤</button>
+    </div>
+  </footer>
+
+  <!-- ОКНО УДАЛЕНИЯ -->
+  <div id="delete-modal" class="modal">
+    <div class="modal-content" style="width: 280px;" onclick="event.stopPropagation()">
+      <h3 style="margin: 0 0 10px 0;">Удалить сообщение?</h3>
+      <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+        <button id="btn-delete-everyone" class="delete-modal-btn btn-danger" onclick="executeDelete(true)">Удалить у всех</button>
+        <button id="btn-delete-me" class="delete-modal-btn btn-secondary" onclick="executeDelete(false)">Удалить только у себя</button>
+        <button class="delete-modal-btn btn-secondary" style="border: none; opacity: 0.7;" onclick="closeDeleteModal()">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="qr-modal" class="modal" onclick="hideQR()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <h3>Your QR Code</h3>
+      <div id="qrcode"></div>
+      <button onclick="hideQR()">Close</button>
+    </div>
+  </div>
+
+  <div id="scanner-modal" class="modal">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <h3>Scanner</h3>
+      <div id="reader"></div>
+      <button onclick="stopScanner()">Cancel</button>
+    </div>
+  </div>
+
+  <div id="waiting-modal">
+    <div class="cat-container">
+      <svg width="120" height="120" viewBox="0 0 200 200">
+        <path id="cat-tail" d="M 140 140 Q 180 110 170 80 Q 160 60 150 80" stroke="#ff9f43" stroke-width="12" stroke-linecap="round" fill="none"/>
+        <ellipse cx="100" cy="140" rx="45" ry="35" fill="#ff9f43" />
+        <circle cx="100" cy="90" r="35" fill="#ff9f43" />
+        <polygon points="70,70 80,40 95,65" fill="#ff9f43" />
+        <polygon points="105,65 120,40 130,70" fill="#ff9f43" />
+        <polygon points="74,68 82,46 92,65" fill="#ffc078" />
+        <polygon points="108,65 118,46 126,68" fill="#ffc078" />
+        <circle cx="88" cy="85" r="4" fill="#2d3436" />
+        <circle cx="112" cy="85" r="4" fill="#2d3436" />
+        <polygon points="97,93 103,93 100,97" fill="#ee5253" />
+        <path d="M 95 100 Q 100 104 105 100" stroke="#2d3436" stroke-width="2" fill="none" />
+        <line x1="65" y1="90" x2="80" y2="92" stroke="#2d3436" stroke-width="1.5" />
+        <line x1="65" y1="97" x2="80" y2="95" stroke="#2d3436" stroke-width="1.5" />
+        <line x1="120" y1="92" x2="135" y2="90" stroke="#2d3436" stroke-width="1.5" />
+        <line x1="120" y1="95" x2="135" y2="97" stroke="#2d3436" stroke-width="1.5" />
+      </svg>
+      <h3 style="margin-top: 10px; color: var(--text-color);">Connecting... 🐾</h3>
+      <p style="color: var(--subtext-color); font-size: 14px; margin-bottom: 15px;">Waiting for friend to accept</p>
+      <button onclick="cancelConnection()" style="background: #ff3b30;">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    const peerConfig = {
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:stun2.l.google.com:19302' }
+        ]
+      }
     };
 
-    let currentLang = 'ru';
-    let isOnline = true;
-    let offlineQueue = [];
-    let mediaRecorder, audioChunks = [], isRecording = false;
-
-    // Смена языка
-    function changeLanguage(lang) {
-        currentLang = lang;
-        const data = i18n[lang];
-        
-        document.documentElement.setAttribute('dir', data.dir);
-        document.getElementById('chat-title').innerText = data.title;
-        document.getElementById('msg-input').placeholder = data.placeholder;
-        
-        updateStatusUI();
+    let mySavedId = localStorage.getItem('meow_chat_user_id');
+    if (!mySavedId) {
+      mySavedId = 'meow-' + Math.random().toString(36).substr(2, 6);
+      localStorage.setItem('meow_chat_user_id', mySavedId);
     }
 
-    // Переключение сети
-    function toggleOnline() {
-        isOnline = !isOnline;
-        updateStatusUI();
-        if (isOnline) flushOfflineQueue();
+    let peer = new Peer(mySavedId, peerConfig);
+    let conn = null;
+    let html5QrCode = null;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+    let messageQueue = [];
+
+    let targetDeleteWrapper = null;
+    let isMultipleDeleteMode = false;
+    let replyingToData = null;
+    let typingTimer = null;
+
+    const meowSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    meowSound.volume = 1.0;
+
+    let audioUnlocked = false;
+    document.addEventListener('click', () => {
+      if (!audioUnlocked) {
+        meowSound.play().then(() => {
+          meowSound.pause();
+          meowSound.currentTime = 0;
+          audioUnlocked = true;
+        }).catch(() => {});
+      }
+    }, { once: true });
+
+    function playMeow() {
+      meowSound.currentTime = 0;
+      meowSound.play().catch(e => console.log("Sound play error:", e));
     }
 
-    function updateStatusUI() {
-        const statusEl = document.getElementById('user-status');
-        const data = i18n[currentLang];
-        if (isOnline) {
-            statusEl.innerText = data.online;
-            statusEl.classList.add('online');
-        } else {
-            statusEl.innerText = data.offline;
-            statusEl.classList.remove('online');
+    // УМНАЯ ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ ТЕМЫ С ИКОНКОЙ ☀️/🌙
+    function toggleTheme() { 
+      document.body.classList.toggle('dark-theme'); 
+      const isDark = document.body.classList.contains('dark-theme');
+      localStorage.setItem('meow_dark', isDark);
+      
+      const themeBtn = document.getElementById('theme-btn');
+      if (themeBtn) themeBtn.innerText = isDark ? '🌙' : '☀️';
+    }
+
+    function changeThemePalette(theme) {
+      document.body.classList.remove('theme-purple', 'theme-mint');
+      if (theme !== 'orange') document.body.classList.add(`theme-${theme}`);
+      localStorage.setItem('meow_palette', theme);
+    }
+
+    const savedPalette = localStorage.getItem('meow_palette');
+    if(savedPalette) {
+      document.getElementById('theme-select').value = savedPalette;
+      changeThemePalette(savedPalette);
+    }
+
+    peer.on('open', (id) => { document.getElementById('my-id').innerText = id; });
+    peer.on('disconnected', () => { peer.reconnect(); });
+
+    function showQR() {
+      document.getElementById('qr-modal').style.display = 'flex';
+      document.getElementById("qrcode").innerHTML = "";
+      new QRCode(document.getElementById("qrcode"), { text: document.getElementById('my-id').innerText, width: 180, height: 180 });
+    }
+
+    function hideQR() { document.getElementById('qr-modal').style.display = 'none'; }
+
+    async function startScanner() {
+      document.getElementById('scanner-modal').style.display = 'flex';
+      if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+      try {
+        await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 200 }, (decodedText) => {
+          document.getElementById('peer-id-input').value = decodedText;
+          stopScanner();
+          connectToPeer();
+        });
+      } catch (err) { alert("Camera error!"); stopScanner(); }
+    }
+
+    function stopScanner() {
+      if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop().then(() => document.getElementById('scanner-modal').style.display = 'none');
+      else document.getElementById('scanner-modal').style.display = 'none';
+    }
+
+    function showWaitingModal() { document.getElementById('waiting-modal').style.display = 'flex'; }
+    function hideWaitingModal() { document.getElementById('waiting-modal').style.display = 'none'; }
+    function cancelConnection() { if (conn) conn.close(); hideWaitingModal(); }
+
+    peer.on('connection', (c) => { conn = c; setupConnection(); playMeow(); });
+
+    function connectToPeer() {
+      const id = document.getElementById('peer-id-input').value.trim();
+      if (!id) return alert("Enter ID!");
+      showWaitingModal();
+      conn = peer.connect(id, { reliable: true });
+      setupConnection();
+    }
+
+    function setupConnection() {
+      if (!conn) return;
+      conn.on('open', () => { 
+        hideWaitingModal();
+        document.getElementById('status-dot').classList.add('online'); 
+        playMeow(); 
+
+        if (messageQueue.length > 0) {
+          messageQueue.forEach(item => {
+            conn.send(item.payload);
+            updateMessageStatus(item.msgId, '✓');
+          });
+          messageQueue = [];
         }
-    }
-
-    // Переключение темы (Кошачья темная / светлая)
-    function toggleTheme() {
-        const app = document.getElementById('app');
-        const isDark = app.getAttribute('data-theme') !== 'cat-light';
-        app.setAttribute('data-theme', isDark ? 'cat-light' : 'dark');
-    }
-
-    // Добавление сообщения в чат
-    function appendMessage(content, type = 'text', isOut = true, status = 'sent') {
-        const chatBox = document.getElementById('chat-box');
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${isOut ? 'out' : 'in'}`;
-
-        let bodyHTML = '';
-        if (type === 'text') bodyHTML = `<span>${content}</span>`;
-        if (type === 'image') bodyHTML = `<img src="${content}" class="msg-img">`;
-        if (type === 'audio') bodyHTML = `<audio controls src="${content}"></audio>`;
-
-        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        let ticksHTML = '';
-        if (isOut) {
-            let tickSymbol = '✓';
-            let readClass = '';
-            if (status === 'delivered') tickSymbol = '✓✓';
-            if (status === 'read') { tickSymbol = '✓✓'; readClass = 'read'; }
-            ticksHTML = `<span class="ticks ${readClass}">${tickSymbol}</span>`;
+      });
+      conn.on('close', () => {
+        hideWaitingModal();
+        document.getElementById('status-dot').classList.remove('online');
+      });
+      conn.on('error', hideWaitingModal);
+      conn.on('data', (d) => {
+        if (d.type === 'ack') {
+          updateMessageStatus(d.msgId, '✓✓');
+          return;
         }
 
-        msgDiv.innerHTML = `${bodyHTML}
-            <div class="msg-meta">
-                <span>${timeStr}</span>
-                ${ticksHTML}
-            </div>`;
-
-        chatBox.appendChild(msgDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
-        return msgDiv;
-    }
-
-    // Отправка текста
-    function sendTextMessage() {
-        const input = document.getElementById('msg-input');
-        const text = input.value.trim();
-        if (!text) return;
-
-        input.value = '';
-
-        if (!isOnline) {
-            const msgNode = appendMessage(text, 'text', true, 'sent');
-            offlineQueue.push(msgNode);
-        } else {
-            const msgNode = appendMessage(text, 'text', true, 'sent');
-            simulateDeliveryAndRead(msgNode);
+        if (d.type === 'typing') {
+          const indicator = document.getElementById('typing-indicator');
+          indicator.classList.add('active');
+          clearTimeout(window.typingTimeout);
+          window.typingTimeout = setTimeout(() => {
+            indicator.classList.remove('active');
+          }, 2000);
+          return;
         }
-    }
 
-    // Имитация галочек доставки (✓ -> ✓✓ -> ✓✓ синие)
-    function simulateDeliveryAndRead(msgNode) {
-        setTimeout(() => {
-            const ticks = msgNode.querySelector('.ticks');
-            if (ticks) ticks.innerText = '✓✓';
-        }, 1000);
-
-        setTimeout(() => {
-            const ticks = msgNode.querySelector('.ticks');
-            if (ticks) {
-                ticks.innerText = '✓✓';
-                ticks.classList.add('read');
-            }
-        }, 2200);
-    }
-
-    function flushOfflineQueue() {
-        while (offlineQueue.length > 0) {
-            const msgNode = offlineQueue.shift();
-            simulateDeliveryAndRead(msgNode);
+        if (d.type === 'delete_msg') {
+          const wrapper = document.querySelector(`.msg-wrapper[data-id="${d.msgId}"]`);
+          if (wrapper) wrapper.remove();
+          removeMessageFromStorage(d.msgId);
+          return;
         }
-    }
 
-    // Картинки
-    function sendImage(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const msgNode = appendMessage(e.target.result, 'image', true, 'sent');
-                if (isOnline) simulateDeliveryAndRead(msgNode);
-                else offlineQueue.push(msgNode);
-            }
-            reader.readAsDataURL(input.files[0]);
+        playMeow();
+
+        if (d.type === 'image') saveAndAddMessage({ type: 'image', file: d.file, type_msg: 'peer', msgId: d.msgId, reply: d.reply });
+        else if (d.type === 'audio') saveAndAddMessage({ type: 'audio', file: d.file, type_msg: 'peer', msgId: d.msgId, reply: d.reply });
+        else saveAndAddMessage({ type: 'text', text: d.text || d, type_msg: 'peer', msgId: d.msgId, reply: d.reply });
+
+        if (d.msgId) {
+          conn.send({ type: 'ack', msgId: d.msgId });
         }
+      });
     }
 
-    // Голосовые
-    async function toggleVoiceRecord() {
-        const btn = document.getElementById('btn-voice');
-        if (!isRecording) {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
-                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                mediaRecorder.onstop = () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    const msgNode = appendMessage(audioUrl, 'audio', true, 'sent');
-                    if (isOnline) simulateDeliveryAndRead(msgNode);
-                    else offlineQueue.push(msgNode);
-                };
-                mediaRecorder.start();
-                isRecording = true;
-                btn.style.background = '#ef4444';
-            } catch(e) {
-                alert("Ошибка микрофона!");
-            }
-        } else {
-            mediaRecorder.stop();
-            isRecording = false;
-            btn.style.background = '';
+    function sendTypingStatus() {
+      if (conn && conn.open) {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(() => {
+          conn.send({ type: 'typing' });
+        }, 300);
+      }
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('message-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const msgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+      const payload = { type: 'text', text: text, msgId: msgId, reply: replyingToData };
+
+      if (conn && conn.open) {
+        conn.send(payload);
+        saveAndAddMessage({ type: 'text', text, type_msg: 'my', msgId, statusSymbol: '✓', reply: replyingToData });
+      } else {
+        messageQueue.push({ msgId, payload });
+        saveAndAddMessage({ type: 'text', text, type_msg: 'my', msgId, statusSymbol: '⏳', reply: replyingToData });
+      }
+      playMeow();
+      input.value = '';
+      cancelReply();
+    }
+
+    function sendFile(input) {
+      if (!conn || !conn.open) return alert("Сначала подключитесь к собеседнику!");
+      const f = input.files[0];
+      if(!f) return;
+      const msgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+      const r = new FileReader();
+      r.onload = (e) => { 
+        conn.send({ type: 'image', file: e.target.result, msgId: msgId, reply: replyingToData }); 
+        saveAndAddMessage({ type: 'image', file: e.target.result, type_msg: 'my', msgId, statusSymbol: '✓', reply: replyingToData });
+        cancelReply();
+      };
+      r.readAsDataURL(f);
+    }
+
+    async function toggleRecord() {
+      if (!conn || !conn.open) return alert("Сначала подключитесь к собеседнику!");
+      if (!isRecording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
+          mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+          mediaRecorder.onstop = () => {
+            const b = new Blob(audioChunks, { type: 'audio/webm' });
+            const msgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+            const r = new FileReader();
+            r.onload = (e) => { 
+              conn.send({ type: 'audio', file: e.target.result, msgId: msgId, reply: replyingToData }); 
+              saveAndAddMessage({ type: 'audio', file: e.target.result, type_msg: 'my', msgId, statusSymbol: '✓', reply: replyingToData });
+              cancelReply();
+            };
+            r.readAsDataURL(b);
+          };
+          mediaRecorder.start(); isRecording = true; document.getElementById('mic-btn').classList.add('recording');
+        } catch(e) { alert("Mic error!"); }
+      } else {
+        mediaRecorder.stop(); isRecording = false; document.getElementById('mic-btn').classList.remove('recording');
+      }
+    }
+
+    function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
+
+    function saveAndAddMessage(msgData) {
+      renderMessage(msgData);
+      let history = JSON.parse(localStorage.getItem('meow_history') || '[]');
+      history.push(msgData);
+      if(history.length > 100) history.shift();
+      localStorage.setItem('meow_history', JSON.stringify(history));
+    }
+
+    function removeMessageFromStorage(msgId) {
+      let history = JSON.parse(localStorage.getItem('meow_history') || '[]');
+      history = history.filter(m => m.msgId !== msgId);
+      localStorage.setItem('meow_history', JSON.stringify(history));
+    }
+
+    // ПРОВЕРКА ТЕМЫ И ИСТОРИИ ПРИ ЗАГРУЗКЕ
+    window.addEventListener('DOMContentLoaded', () => {
+      const isDark = localStorage.getItem('meow_dark') === 'true';
+      const themeBtn = document.getElementById('theme-btn');
+      if (isDark) {
+        document.body.classList.add('dark-theme');
+        if (themeBtn) themeBtn.innerText = '🌙';
+      } else {
+        if (themeBtn) themeBtn.innerText = '☀️';
+      }
+
+      let history = JSON.parse(localStorage.getItem('meow_history') || '[]');
+      history.forEach(m => renderMessage(m));
+    });
+
+    function setReply(btn) {
+      const msgDiv = btn.closest('.msg');
+      const wrapper = btn.closest('.msg-wrapper');
+      const msgId = wrapper.getAttribute('data-id');
+      const textEl = msgDiv.querySelector('.msg-text-content') || msgDiv.querySelector('img') || msgDiv.querySelector('audio');
+      
+      let snippet = textEl.tagName === 'IMG' ? '[Фото]' : (textEl.tagName === 'AUDIO' ? '[Голосовое]' : textEl.innerText);
+      if(snippet.length > 30) snippet = snippet.substring(0, 30) + '...';
+
+      replyingToData = { msgId, snippet };
+      document.getElementById('reply-preview-text').innerText = snippet;
+      document.getElementById('reply-preview').style.display = 'flex';
+      document.getElementById('message-input').focus();
+    }
+
+    function cancelReply() {
+      replyingToData = null;
+      document.getElementById('reply-preview').style.display = 'none';
+    }
+
+    async function translateText(btn) {
+      const msgDiv = btn.closest('.msg');
+      const textSpan = msgDiv.querySelector('.msg-text-content');
+      if (!textSpan) return;
+
+      const targetLang = document.getElementById('lang-select').value;
+      const originalText = textSpan.innerText;
+      btn.innerText = '⏳';
+
+      try {
+        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(originalText)}`);
+        const data = await res.json();
+        if (data && data[0]) {
+          const translatedText = data[0].map(item => item[0]).join('');
+          textSpan.innerText = translatedText;
+          btn.innerText = '🌐';
         }
+      } catch (e) {
+        alert("Ошибка перевода!");
+        btn.innerText = '🌐';
+      }
     }
 
-    // Работа с QR Кодом
-    let qrGenerated = false;
-    function showQRCode() {
-        document.getElementById('qr-modal').style.display = 'flex';
-        if (!qrGenerated) {
-            new QRCode(document.getElementById("qrcode"), {
-                text: window.location.href,
-                width: 160,
-                height: 160
-            });
-            qrGenerated = true;
+    function renderMessage(data) {
+      const { type, text, file, type_msg, msgId, statusSymbol = '', reply } = data;
+      const wrapper = document.createElement('div');
+      wrapper.className = `msg-wrapper ${type_msg}-wrapper`;
+      if (msgId) wrapper.setAttribute('data-id', msgId);
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'msg-checkbox';
+      checkbox.onchange = updateSelectedCount;
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `msg ${type_msg}`;
+
+      if (reply) {
+        const quoteDiv = document.createElement('div');
+        quoteDiv.className = 'quoted-box';
+        quoteDiv.innerText = reply.snippet;
+        msgDiv.appendChild(quoteDiv);
+      }
+
+      if (type === 'image') {
+        const img = document.createElement('img');
+        img.src = file;
+        msgDiv.appendChild(img);
+      } else if (type === 'audio') {
+        const audio = document.createElement('audio');
+        audio.src = file;
+        audio.controls = true;
+        msgDiv.appendChild(audio);
+      } else {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const textSpan = document.createElement('span');
+        textSpan.className = 'msg-text-content';
+        textSpan.innerHTML = text.replace(urlRegex, '<a href="$1" target="_blank" style="color:inherit; text-decoration:underline;">$1</a>');
+        msgDiv.appendChild(textSpan);
+      }
+
+      if (type_msg === 'my') {
+        const metaDiv = document.createElement('div');
+        metaDiv.className = 'msg-meta';
+        metaDiv.innerHTML = `<span class="msg-status ${statusSymbol === '✓✓' ? 'read' : ''}">${statusSymbol}</span>`;
+        msgDiv.appendChild(metaDiv);
+      }
+
+      const actions = document.createElement('div');
+      actions.className = 'msg-actions';
+      actions.innerHTML = `
+        <button class="action-btn" onclick="setReply(this)" title="Ответить">↩️</button>
+        ${type === 'text' ? '<button class="action-btn" onclick="translateText(this)" title="Перевести">🌐</button>' : ''}
+        ${type === 'text' ? '<button class="action-btn" onclick="copyTextMessage(this)" title="Копировать">📋</button>' : ''}
+        ${type === 'image' ? `<button class="action-btn" onclick="shareFile('${file}', 'photo.png')">↗️</button>` : ''}
+        <button class="action-btn" onclick="openDeleteModal(this)" title="Удалить">🗑️</button>
+      `;
+      msgDiv.appendChild(actions);
+
+      wrapper.appendChild(checkbox);
+      wrapper.appendChild(msgDiv);
+      document.getElementById('messages').appendChild(wrapper); 
+      document.getElementById('messages').scrollTop = 9999; 
+    }
+
+    function updateMessageStatus(msgId, symbol) {
+      const wrapper = document.querySelector(`.msg-wrapper[data-id="${msgId}"]`);
+      if (wrapper) {
+        const statusSpan = wrapper.querySelector('.msg-status');
+        if (statusSpan) {
+          statusSpan.innerText = symbol;
+          if (symbol === '✓✓') statusSpan.classList.add('read');
         }
-    }
-    function hideQRCode() {
-        document.getElementById('qr-modal').style.display = 'none';
+      }
     }
 
-    // Стартовая инициализация
-    changeLanguage('ru');
-</script>
+    function copyTextMessage(btn) {
+      const msgDiv = btn.closest('.msg');
+      const textSpan = msgDiv.querySelector('.msg-text-content');
+      if (!textSpan) return;
+      navigator.clipboard.writeText(textSpan.innerText).then(() => {
+        const originalText = btn.innerText;
+        btn.innerText = '✅';
+        setTimeout(() => { btn.innerText = originalText; }, 1500);
+      });
+    }
+
+    async function shareFile(base64Data, fileName) {
+      if (!navigator.share) return alert("Sharing is not supported.");
+      try {
+        const res = await fetch(base64Data);
+        const blob = await res.blob();
+        const file = new File([blob], fileName, { type: blob.type || 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'Meow App File' });
+        }
+      } catch (err) {}
+    }
+
+    function openDeleteModal(btn) {
+      isMultipleDeleteMode = false;
+      targetDeleteWrapper = btn.closest('.msg-wrapper');
+      const isMyMessage = targetDeleteWrapper.classList.contains('my-wrapper');
+      const btnEveryone = document.getElementById('btn-delete-everyone');
+      btnEveryone.style.display = (isMyMessage && conn && conn.open) ? 'block' : 'none';
+      document.getElementById('delete-modal').style.display = 'flex';
+    }
+
+    function confirmDeleteSelected() {
+      const selected = document.querySelectorAll('.msg-checkbox:checked');
+      if (selected.length === 0) return;
+      isMultipleDeleteMode = true;
+      let hasMyMessages = false;
+      selected.forEach(cb => {
+        if (cb.closest('.msg-wrapper').classList.contains('my-wrapper')) hasMyMessages = true;
+      });
+      document.getElementById('btn-delete-everyone').style.display = (hasMyMessages && conn && conn.open) ? 'block' : 'none';
+      document.getElementById('delete-modal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('delete-modal').style.display = 'none';
+      targetDeleteWrapper = null;
+      isMultipleDeleteMode = false;
+    }
+
+    function executeDelete(deleteForEveryone) {
+      if (isMultipleDeleteMode) {
+        const selected = document.querySelectorAll('.msg-checkbox:checked');
+        selected.forEach(cb => {
+          const wrapper = cb.closest('.msg-wrapper');
+          const msgId = wrapper.getAttribute('data-id');
+          if (deleteForEveryone && wrapper.classList.contains('my-wrapper') && msgId && conn && conn.open) {
+            conn.send({ type: 'delete_msg', msgId: msgId });
+          }
+          wrapper.remove();
+          if(msgId) removeMessageFromStorage(msgId);
+        });
+        toggleSelectMode();
+      } else if (targetDeleteWrapper) {
+        const msgId = targetDeleteWrapper.getAttribute('data-id');
+        if (deleteForEveryone && targetDeleteWrapper.classList.contains('my-wrapper') && msgId && conn && conn.open) {
+          conn.send({ type: 'delete_msg', msgId: msgId });
+        }
+        targetDeleteWrapper.remove();
+        if(msgId) removeMessageFromStorage(msgId);
+      }
+      closeDeleteModal();
+    }
+
+    function toggleSelectMode() {
+      document.body.classList.toggle('select-mode');
+      document.getElementById('delete-bar').style.display = document.body.classList.contains('select-mode') ? 'flex' : 'none';
+      if (!document.body.classList.contains('select-mode')) {
+        document.querySelectorAll('.msg-checkbox').forEach(cb => cb.checked = false);
+        updateSelectedCount();
+      }
+    }
+
+    function updateSelectedCount() {
+      document.getElementById('selected-count').innerText = `Выбрано: ${document.querySelectorAll('.msg-checkbox:checked').length}`;
+    }
+  </script>
 </body>
 </html>
