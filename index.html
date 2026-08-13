@@ -60,14 +60,13 @@
     header { padding: 12px; background: var(--panel-bg); border-bottom: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); z-index: 10; }
     .app-title { font-size: 20px; font-weight: bold; color: var(--accent-color); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
     
-    /* Индикатор печати с лапками */
     #typing-indicator { font-size: 12px; color: var(--accent-color); height: 18px; opacity: 0; transition: opacity 0.3s; display: flex; align-items: center; gap: 4px; font-weight: bold; }
     #typing-indicator.active { opacity: 1; }
     .paw-print { animation: bouncePaws 0.8px infinite alternate; display: inline-block; }
     @keyframes bouncePaws { 0% { transform: translateY(0); } 100% { transform: translateY(-3px); } }
 
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
-    .controls-right { display: flex; gap: 6px; align-items: center; }
+    .controls-right { display: flex; gap: 4px; align-items: center; }
     .id-box { font-size: 14px; display: flex; align-items: center; gap: 6px; }
     .status-dot { width: 10px; height: 10px; border-radius: 50%; background-color: #ff3b30; display: inline-block; }
     .status-dot.online { background-color: #34c759; }
@@ -94,7 +93,6 @@
     .my { background-color: var(--accent-color); color: white; border-bottom-right-radius: 4px; }
     .peer { background-color: var(--peer-msg-bg); color: var(--peer-msg-text); border-bottom-left-radius: 4px; }
 
-    /* Стили для цитирования */
     .quoted-box { background: rgba(0,0,0,0.1); border-left: 3px solid var(--accent-color); padding: 4px 8px; border-radius: 4px; font-size: 13px; margin-bottom: 6px; opacity: 0.9; }
     body.dark-theme .quoted-box { background: rgba(255,255,255,0.1); }
 
@@ -102,22 +100,21 @@
     .msg-status { font-weight: bold; font-size: 15px; line-height: 1; }
     .msg-status.read { color: #34c759; }
 
-    .msg-actions { display: flex; gap: 6px; margin-top: 8px; justify-content: flex-end; }
-    .action-btn { background: rgba(0,0,0,0.15); border: none; border-radius: 8px; color: inherit; padding: 4px 8px; font-size: 15px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+    .msg-actions { display: flex; gap: 4px; margin-top: 8px; justify-content: flex-end; flex-wrap: wrap; }
+    .action-btn { background: rgba(0,0,0,0.15); border: none; border-radius: 8px; color: inherit; padding: 4px 8px; font-size: 14px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; }
     .action-btn:active { transform: scale(0.9); }
     
-    /* Панель ответа на сообщение */
     #reply-preview { display: none; padding: 6px 12px; background: var(--panel-bg); border-top: 1px solid var(--border-color); align-items: center; justify-content: space-between; font-size: 13px; }
     #reply-preview-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--subtext-color); border-left: 3px solid var(--accent-color); padding-left: 8px; margin-right: 8px; }
 
     footer { padding: 10px; background: var(--panel-bg); display: flex; flex-direction: column; border-top: 1px solid var(--border-color); z-index: 10; gap: 6px; }
     .footer-inputs { display: flex; gap: 6px; align-items: center; width: 100%; }
 
-    input[type="text"], select { padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; background-color: var(--bg-color); color: var(--text-color); }
-    #message-input { flex: 1; }
+    input[type="text"], select { padding: 8px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; outline: none; background-color: var(--bg-color); color: var(--text-color); }
+    #message-input { flex: 1; padding: 10px; font-size: 14px; }
     
     button, .btn-icon { padding: 10px 14px; background-color: var(--accent-color); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .btn-icon { background-color: var(--bg-color); color: var(--text-color); font-size: 18px; border: 1px solid var(--border-color); }
+    .btn-icon { background-color: var(--bg-color); color: var(--text-color); font-size: 16px; border: 1px solid var(--border-color); padding: 8px; }
     .btn-icon.recording { background-color: #ff3b30; color: white; animation: pulse 1s infinite alternate; }
     @keyframes pulse { from { opacity: 1; } to { opacity: 0.5; } }
     
@@ -152,12 +149,20 @@
         <span>ID: <b id="my-id" style="color: var(--accent-color);">Loading...</b></span>
       </div>
       <div class="controls-right">
-        <button class="btn-icon" onclick="toggleSelectMode()" title="Выбрать несколько">☑️</button>
-        <select id="theme-select" onchange="changeThemePalette(this.value)">
-          <option value="orange">🐱 Orange</option>
-          <option value="purple">💜 Purple</option>
-          <option value="mint">🌿 Mint</option>
+        <!-- ВЫБОР ЯЗЫКА ДЛЯ ПЕРЕВОДА -->
+        <select id="lang-select" title="Переводить на этот язык">
+          <option value="ru">🇷🇺 RU</option>
+          <option value="en">🇬🇧 EN</option>
+          <option value="es">🇪🇸 ES</option>
+          <option value="de">🇩🇪 DE</option>
         </select>
+        <!-- ВЫБОР ЦВЕТОВОЙ ТЕМЫ -->
+        <select id="theme-select" onchange="changeThemePalette(this.value)">
+          <option value="orange">🐱</option>
+          <option value="purple">💜</option>
+          <option value="mint">🌿</option>
+        </select>
+        <button class="btn-icon" onclick="toggleSelectMode()" title="Выбрать несколько">☑️</button>
         <button class="btn-icon" onclick="showQR()">📱</button>
         <button class="btn-icon" onclick="toggleTheme()">🌙</button>
       </div>
@@ -306,7 +311,6 @@
       localStorage.setItem('meow_palette', theme);
     }
 
-    // Загрузка сохраненных тем
     if(localStorage.getItem('meow_dark') === 'true') document.body.classList.add('dark-theme');
     const savedPalette = localStorage.getItem('meow_palette');
     if(savedPalette) {
@@ -315,7 +319,6 @@
     }
 
     peer.on('open', (id) => { document.getElementById('my-id').innerText = id; });
-
     peer.on('disconnected', () => { peer.reconnect(); });
 
     function showQR() {
@@ -483,12 +486,11 @@
 
     function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
 
-    // Логика сохранения истории в LocalStorage
     function saveAndAddMessage(msgData) {
       renderMessage(msgData);
       let history = JSON.parse(localStorage.getItem('meow_history') || '[]');
       history.push(msgData);
-      if(history.length > 100) history.shift(); // ограничение в 100 сообщений
+      if(history.length > 100) history.shift();
       localStorage.setItem('meow_history', JSON.stringify(history));
     }
 
@@ -498,7 +500,6 @@
       localStorage.setItem('meow_history', JSON.stringify(history));
     }
 
-    // Загрузка истории при старте
     window.addEventListener('DOMContentLoaded', () => {
       let history = JSON.parse(localStorage.getItem('meow_history') || '[]');
       history.forEach(m => renderMessage(m));
@@ -508,7 +509,7 @@
       const msgDiv = btn.closest('.msg');
       const wrapper = btn.closest('.msg-wrapper');
       const msgId = wrapper.getAttribute('data-id');
-      const textEl = msgDiv.querySelector('span') || msgDiv.querySelector('img') || msgDiv.querySelector('audio');
+      const textEl = msgDiv.querySelector('.msg-text-content') || msgDiv.querySelector('img') || msgDiv.querySelector('audio');
       
       let snippet = textEl.tagName === 'IMG' ? '[Фото]' : (textEl.tagName === 'AUDIO' ? '[Голосовое]' : textEl.innerText);
       if(snippet.length > 30) snippet = snippet.substring(0, 30) + '...';
@@ -522,6 +523,30 @@
     function cancelReply() {
       replyingToData = null;
       document.getElementById('reply-preview').style.display = 'none';
+    }
+
+    // Функция онлайн-перевода через бесплатный сервис
+    async function translateText(btn) {
+      const msgDiv = btn.closest('.msg');
+      const textSpan = msgDiv.querySelector('.msg-text-content');
+      if (!textSpan) return;
+
+      const targetLang = document.getElementById('lang-select').value;
+      const originalText = textSpan.innerText;
+      btn.innerText = '⏳';
+
+      try {
+        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(originalText)}`);
+        const data = await res.json();
+        if (data && data[0]) {
+          const translatedText = data[0].map(item => item[0]).join('');
+          textSpan.innerText = translatedText;
+          btn.innerText = '🌐';
+        }
+      } catch (e) {
+        alert("Ошибка перевода!");
+        btn.innerText = '🌐';
+      }
     }
 
     function renderMessage(data) {
@@ -538,7 +563,6 @@
       const msgDiv = document.createElement('div');
       msgDiv.className = `msg ${type_msg}`;
 
-      // Если есть цитата
       if (reply) {
         const quoteDiv = document.createElement('div');
         quoteDiv.className = 'quoted-box';
@@ -558,6 +582,7 @@
       } else {
         const urlRegex = /(https?:\/\/[^\s]+)/g;
         const textSpan = document.createElement('span');
+        textSpan.className = 'msg-text-content';
         textSpan.innerHTML = text.replace(urlRegex, '<a href="$1" target="_blank" style="color:inherit; text-decoration:underline;">$1</a>');
         msgDiv.appendChild(textSpan);
       }
@@ -573,6 +598,7 @@
       actions.className = 'msg-actions';
       actions.innerHTML = `
         <button class="action-btn" onclick="setReply(this)" title="Ответить">↩️</button>
+        ${type === 'text' ? '<button class="action-btn" onclick="translateText(this)" title="Перевести">🌐</button>' : ''}
         ${type === 'text' ? '<button class="action-btn" onclick="copyTextMessage(this)" title="Копировать">📋</button>' : ''}
         ${type === 'image' ? `<button class="action-btn" onclick="shareFile('${file}', 'photo.png')">↗️</button>` : ''}
         <button class="action-btn" onclick="openDeleteModal(this)" title="Удалить">🗑️</button>
@@ -598,7 +624,7 @@
 
     function copyTextMessage(btn) {
       const msgDiv = btn.closest('.msg');
-      const textSpan = msgDiv.querySelector('span');
+      const textSpan = msgDiv.querySelector('.msg-text-content');
       if (!textSpan) return;
       navigator.clipboard.writeText(textSpan.innerText).then(() => {
         const originalText = btn.innerText;
